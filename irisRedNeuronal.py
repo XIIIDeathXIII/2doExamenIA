@@ -5,28 +5,43 @@ def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
 data = []
+dataTest=[]
 labels = []
+labelsTest=[]
+i=1
 with open('iris.csv', 'r') as file:
     csv_reader = csv.reader(file)
     next(csv_reader)  
     for row in csv_reader:
-        data.append([float(row[0]), float(row[1]), float(row[2]), float(row[3])])
-        labels.append(row[4])
-
+        if i==6:
+            i=1
+            dataTest.append([float(row[0]), float(row[1]), float(row[2]), float(row[3])])
+            labelsTest.append(row[4])    
+        else:    
+            data.append([float(row[0]), float(row[1]), float(row[2]), float(row[3])])
+            labels.append(row[4])
+            i=i+1
+            
 data = np.array(data)
 labels = np.array(labels)
+labelsTest= np.array(labelsTest)
+dataTest = np.array(dataTest)
 
 unique_labels = np.unique(labels)
 num_classes = len(unique_labels)
 labels_encoded = np.zeros((len(labels), num_classes))
+labelsTest_encoded = np.zeros((len(labelsTest),num_classes))
 for i, label in enumerate(labels):
     labels_encoded[i, np.where(unique_labels == label)[0][0]] = 1
+for i, labelTest in enumerate(labelsTest):
+    labelsTest_encoded[i, np.where(unique_labels == labelTest)[0][0]] = 1
 
 
 input_size = data.shape[1]
-hidden_size1 = 10
-hidden_size2 = 20
+hidden_size1 = 8
+hidden_size2 = 8
 output_size = num_classes
+
 
 
 np.random.seed(42)
@@ -35,8 +50,8 @@ W2 = np.random.randn(hidden_size1, hidden_size2)
 W3 = np.random.randn(hidden_size2, output_size)
 
 
-learning_rate = 0.1
-epocas = 1000
+learning_rate = 0.03
+epocas = 1500
 
 
 for _ in range(epocas):
@@ -61,15 +76,17 @@ for _ in range(epocas):
     W1 -= learning_rate * dW1
 
 
-hidden1 = sigmoid(np.dot(data, W1))
+
+hidden1 = sigmoid(np.dot(dataTest, W1))
 hidden2 = sigmoid(np.dot(hidden1, W2))
 output = sigmoid(np.dot(hidden2, W3))
 predic = np.argmax(output, axis=1)
-precision = np.mean(predic == np.argmax(labels_encoded, axis=1))
+print(predic)
+print(np.argmax(labelsTest_encoded,axis=1))
+precision = np.mean(predic == np.argmax(labelsTest_encoded, axis=1))
 print("precision: {:.2f}%".format(precision * 100))
 
-
-
+"""
 prueba = [[6.1, 2.9, 4.7, 1.4]]
 print ("datos para hacer la prediccion: ", prueba)
 hidden1 = sigmoid(np.dot(prueba, W1))
@@ -82,3 +99,4 @@ if predic==1:
     print("prediccion: iris versicolor")
 if predic==2:
     print("prediccion: iris virginica")
+"""
